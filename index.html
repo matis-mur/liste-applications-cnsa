@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liste des applications – CNSA</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="logo-cnsa.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#7ab51d;
+    --green-d:#5e9412;
+    --lime:#c8d400;
+    --ink:#1b2410;
+    --muted:#6f7a63;
+    --line:rgba(122,181,29,.22);
+    --err:#b42318;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:"Outfit",system-ui,sans-serif;color:var(--ink);overflow:hidden;
+    background:linear-gradient(180deg,#fbfdf4 0%,#f1f8e2 45%,#e4f1c8 100%)}
+
+  /* ---------- Fond paysage ---------- */
+  .scene{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .sun{position:absolute;width:520px;height:520px;border-radius:50%;left:50%;top:-140px;transform:translateX(-50%);
+    background:radial-gradient(circle,rgba(200,212,0,.35) 0%,rgba(200,212,0,.12) 40%,transparent 70%)}
+  .glow1{position:absolute;width:700px;height:700px;border-radius:50%;left:-260px;top:10%;
+    background:radial-gradient(circle,rgba(122,181,29,.16),transparent 65%)}
+  .glow2{position:absolute;width:600px;height:600px;border-radius:50%;right:-220px;top:-120px;
+    background:radial-gradient(circle,rgba(200,212,0,.18),transparent 65%)}
+  .hills{position:absolute;left:0;right:0;bottom:0;width:100%;height:62vh}
+  .h1{animation:drift 18s ease-in-out infinite alternate}
+  .h2{animation:drift 22s ease-in-out infinite alternate-reverse}
+  @keyframes drift{from{transform:translateX(-1.5%)}to{transform:translateX(1.5%)}}
+  @media (prefers-reduced-motion:reduce){.h1,.h2,.card{animation:none}}
+
+  /* ---------- Carte centrale ---------- */
+  .stage{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;padding:20px}
+  .card{width:100%;max-width:460px;padding:30px 36px 26px;border-radius:28px;
+    background:rgba(255,255,255,.72);
+    backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
+    border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 30px 60px -20px rgba(70,110,10,.28),0 2px 0 rgba(255,255,255,.8) inset;
+    animation:in .7s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes in{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+
+  .head{text-align:center;margin-bottom:22px}
+  .logo{display:block;height:74px;width:auto;margin:0 auto}
+  .head h1{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-top:14px}
+  .head p{color:var(--muted);font-size:15px;font-weight:300;margin-top:6px}
+
+  .field{margin-bottom:14px}
+  .field label{display:flex;justify-content:space-between;align-items:baseline;
+    font-size:13px;font-weight:600;margin:0 4px 6px;color:#2c3720}
+  .field label a{color:var(--green-d);font-weight:500;text-decoration:none;font-size:12.5px}
+  .field label a:hover{text-decoration:underline}
+  .field label small{font-weight:400;color:var(--muted);font-size:12px}
+  .input{display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-radius:14px;
+    background:rgba(255,255,255,.85);border:1.5px solid var(--line);transition:.2s}
+  .input:focus-within{border-color:var(--green);background:#fff;box-shadow:0 0 0 4px rgba(122,181,29,.14)}
+  .input.invalid{border-color:var(--err);box-shadow:0 0 0 4px rgba(180,35,24,.10)}
+  .input svg{flex:none;color:var(--green);opacity:.75}
+  .input input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:15px;color:var(--ink);outline:none}
+  .input input::placeholder{color:#a7b09a}
+  .suffix{font-size:14px;color:var(--muted);font-weight:500}
+  .eye{background:none;border:0;cursor:pointer;display:grid;color:var(--muted);padding:4px}
+  [hidden]{display:none !important}
+  .auto{font-size:12px;color:var(--green-d);margin:5px 4px 0;height:14px;opacity:0;transition:.3s}
+  .auto.on{opacity:1}
+
+  .btn{margin-top:8px;width:100%;height:54px;border:0;border-radius:16px;cursor:pointer;
+    font:inherit;font-size:16.5px;font-weight:600;color:#fff;letter-spacing:.01em;
+    background:linear-gradient(100deg,#8fc126 0%,var(--green) 50%,var(--green-d) 100%);
+    box-shadow:0 12px 24px -10px rgba(94,148,18,.75);
+    display:flex;align-items:center;justify-content:center;gap:10px;transition:.25s;position:relative;overflow:hidden}
+  .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.35) 50%,transparent 70%);
+    transform:translateX(-100%);transition:.7s}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 16px 28px -10px rgba(94,148,18,.85)}
+  .btn:hover::after{transform:translateX(100%)}
+  .btn:disabled{cursor:wait;transform:none;filter:saturate(.85)}
+  .btn:focus-visible{outline:3px solid var(--lime);outline-offset:3px}
+  .spin{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;
+    animation:r .8s linear infinite;display:none}
+  .loading .spin{display:block}.loading .ico{display:none}
+  @keyframes r{to{transform:rotate(360deg)}}
+
+  .result{margin-top:12px;min-height:0;max-height:0;opacity:0;overflow:hidden;transition:.35s;border-radius:14px;
+    display:flex;align-items:center;gap:12px;padding:0 14px;font-size:14px;line-height:1.35;
+    background:rgba(122,181,29,.09);border:1.5px solid transparent}
+  .result.show{min-height:52px;max-height:120px;opacity:1;padding:10px 14px}
+  .result.ok{border-color:rgba(122,181,29,.45);background:rgba(200,212,0,.12)}
+  .result.err{border-color:rgba(180,35,24,.35);background:rgba(180,35,24,.06);color:var(--err)}
+  .xl{width:30px;height:30px;border-radius:9px;flex:none;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--lime),var(--green));color:#fff;font-size:10.5px;font-weight:700}
+  .bang{width:26px;height:26px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--err);color:#fff;font-weight:700}
+  .result a{margin-left:auto;color:var(--green-d);font-weight:600;text-decoration:none;white-space:nowrap;cursor:pointer}
+  .result .fn{overflow:hidden;text-overflow:ellipsis}
+  .result .fn small{display:block;color:var(--muted);font-size:12.5px}
+
+  .secu{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:16px;
+    font-size:12.5px;color:var(--muted)}
+
+  @media (max-height:740px){
+    .card{padding:22px 30px 18px}.head{margin-bottom:14px}.logo{height:56px}.head h1{font-size:24px;margin-top:10px}
+    .head p{display:none}.field{margin-bottom:9px}.input{height:44px}.btn{height:50px}.secu{margin-top:10px}
+  }
+  @media (max-width:520px){body{overflow:auto}.stage{height:auto;min-height:100vh}.card{padding:26px 20px}}
+</style>
+</head>
+<body>
+
+<div class="scene" aria-hidden="true">
+  <div class="sun"></div><div class="glow1"></div><div class="glow2"></div>
+  <svg class="hills" viewBox="0 0 1440 600" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e3f0c4"/><stop offset="1" stop-color="#d6e9ad"/></linearGradient>
+      <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d2e79a"/><stop offset="1" stop-color="#bedb7a"/></linearGradient>
+      <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b4d566"/><stop offset="1" stop-color="#9cc84a"/></linearGradient>
+      <linearGradient id="g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#93c23a"/><stop offset="1" stop-color="#7ab51d"/></linearGradient>
+      <linearGradient id="g5" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d9de5a"/><stop offset=".6" stop-color="#c8d400"/><stop offset="1" stop-color="#b6c400"/></linearGradient>
+    </defs>
+    <path class="h1" fill="url(#g1)" d="M-60 230 C 200 140, 420 180, 640 210 S 1080 120, 1500 190 L1500 600 L-60 600Z"/>
+    <path class="h2" fill="url(#g2)" d="M-60 320 C 180 250, 360 300, 560 310 S 980 230, 1240 270 S 1440 300, 1500 280 L1500 600 L-60 600Z"/>
+    <path fill="url(#g5)" opacity=".55" d="M700 600 C 860 430, 1100 360, 1500 380 L1500 600Z"/>
+    <path fill="url(#g3)" d="M-60 420 C 160 360, 380 400, 620 430 S 1060 390, 1500 440 L1500 600 L-60 600Z"/>
+    <path fill="url(#g4)" d="M-60 520 C 240 470, 520 500, 780 520 S 1240 490, 1500 510 L1500 600 L-60 600Z"/>
+  </svg>
+</div>
+
+<main class="stage">
+  <form class="card" id="form" novalidate>
+    <div class="head">
+      <img class="logo" src="logo-cnsa.png" alt="CNSA – Caisse nationale de solidarité pour l'autonomie">
+      <h1>Liste des applications</h1>
+      <p>L'Excel à jour des fiches applicatives Confluence, en un clic.</p>
+    </div>
+
+    <!-- Mode « bouton unique » : seul le code d'accès est demandé (si l'administrateur en a défini un) -->
+    <div class="field" id="code-field" hidden>
+      <label for="code">Code d'accès</label>
+      <div class="input" id="code-box">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3m-4 4 3 3m-6-1 2 2"/></svg>
+        <input id="code" name="code" type="password" autocomplete="off" spellcheck="false" placeholder="Code communiqué par l'équipe">
+      </div>
+    </div>
+
+    <!-- Mode « formulaire » : utilisé tant que le compte Confluence n'est pas configuré sur le serveur -->
+    <div id="manual" hidden>
+      <div class="field">
+        <label for="url">URL du dossier</label>
+        <div class="input" id="url-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+          <input id="url" name="url" type="url" inputmode="url" autocomplete="off" spellcheck="false"
+                 placeholder="https://xxx.atlassian.net/wiki/spaces/…">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email Atlassian</label>
+        <div class="input" id="email-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m3 7 9 6 9-6"/></svg>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="prenom.nom@exemple.fr">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="token">Token API
+          <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener">Où le trouver ?</a>
+        </label>
+        <div class="input" id="token-box">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="3"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+          <input id="token" name="token" type="password" autocomplete="off" spellcheck="false" placeholder="Collez votre token">
+          <button type="button" class="eye" id="eye" aria-label="Afficher le token">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="filename">Nom du fichier <small>modifiable</small></label>
+        <div class="input">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>
+          <input id="filename" name="filename" type="text" autocomplete="off" placeholder="Liste_des_Applications_CNSA">
+          <span class="suffix">.xlsx</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" id="go" type="submit">
+      <span class="spin"></span>
+      <svg class="ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+      <span id="lbl">Générer l'Excel</span>
+    </button>
+
+    <div class="result" id="res" role="status" aria-live="polite"></div>
+
+    <div class="secu" id="secu">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span id="secu-txt">Données lues en direct dans Confluence, rien n'est conservé.</span>
+    </div>
+  </form>
+</main>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const form = $('form'), btn = $('go'), lbl = $('lbl'), res = $('res');
+  let lastUrl = null, configured = false, needsCode = false, defaultName = 'Liste des Applications CNSA';
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
+    del(k) { try { localStorage.removeItem(k); } catch (e) {} },
+  };
+
+  // --- Le serveur indique s'il est déjà configuré (bouton unique) ou non (formulaire) ---
+  fetch('api/export', { cache: 'no-store' })
+    .then((r) => r.json())
+    .then((info) => {
+      configured = !!info.configured; needsCode = !!info.needsCode;
+      if (info.defaultFilename) defaultName = info.defaultFilename;
+      if (configured) {
+        $('code-field').hidden = !needsCode;
+        const c = store.get('export-confluence-code'); if (c) $('code').value = c;
+      } else {
+        $('manual').hidden = false;
+        $('url').value = info.defaultUrl || '';
+        $('filename').value = info.defaultFilename || '';
+        $('code-field').hidden = !needsCode;
+        $('secu-txt').textContent = 'Vos identifiants ne sont jamais conservés.';
+        const m = store.get('export-confluence-email'); if (m) $('email').value = m;
+      }
+    })
+    .catch(() => showError("Le service d'export ne répond pas. Rechargez la page dans un instant."));
+
+  ['url', 'email', 'token', 'code'].forEach((id) => $(id).addEventListener('input', () => $(id + '-box').classList.remove('invalid')));
+  $('eye').addEventListener('click', () => { const t = $('token'); t.type = t.type === 'password' ? 'text' : 'password'; });
+
+  // --- Affichage du résultat ---
+  function esc(s) { return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+  function showInfo(text) { res.className = 'result show'; res.innerHTML = '<span class="fn">' + esc(text) + '</span>'; }
+  function showError(text) { res.className = 'result show err'; res.innerHTML = '<span class="bang">!</span><span class="fn">' + esc(text) + '</span>'; }
+  function showDone(name, detail) {
+    res.className = 'result show ok';
+    res.innerHTML = '<span class="xl">XLS</span><span class="fn">' + esc(name) +
+      (detail ? '<small>' + esc(detail) + '</small>' : '') + '</span><a id="again">Télécharger</a>';
+    $('again').addEventListener('click', () => lastUrl && triggerDownload(lastUrl, name));
+  }
+  function setLoading(on, text) {
+    btn.disabled = on; btn.classList.toggle('loading', on);
+    lbl.textContent = on ? text : "Générer l'Excel";
+  }
+  function triggerDownload(href, name) {
+    const a = document.createElement('a'); a.href = href; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  function plural(n, one, many) { return n + ' ' + (n > 1 ? many : one); }
+  function stamp() {
+    const d = new Date(), p = (n) => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + 'h' + p(d.getMinutes());
+  }
+  // « Enregistrer sous » (Chrome, Edge) : l'utilisateur choisit le dossier et peut remplacer l'ancien fichier.
+  // Ailleurs (Safari, Firefox), téléchargement classique.
+  async function askWhereToSave(name) {
+    if (typeof window.showSaveFilePicker !== 'function' || window.self !== window.top) return null;
+    try {
+      return await window.showSaveFilePicker({
+        id: 'liste-applications', startIn: 'downloads', suggestedName: name,
+        types: [{ description: 'Classeur Excel', accept: { 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'] } }],
+      });
+    } catch (err) {
+      if (err && err.name === 'AbortError') throw err;  // l'utilisateur a fermé la fenêtre
+      return null;  // fenêtre indisponible : téléchargement classique
+    }
+  }
+
+  // --- Envoi ---
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    ['url', 'email', 'token', 'code'].forEach((id) => $(id + '-box').classList.remove('invalid'));
+    const payload = { code: $('code').value.trim() };
+    let bad = false;
+    if (needsCode && !payload.code) { $('code-box').classList.add('invalid'); bad = true; }
+    if (!configured) {
+      payload.url = $('url').value.trim(); payload.email = $('email').value.trim();
+      payload.token = $('token').value.trim(); payload.filename = $('filename').value.trim();
+      if (!/atlassian\.net\/|^https?:\/\/(localhost|127\.0\.0\.1)/i.test(payload.url)) { $('url-box').classList.add('invalid'); bad = true; }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(payload.email)) { $('email-box').classList.add('invalid'); bad = true; }
+      if (!payload.token) { $('token-box').classList.add('invalid'); bad = true; }
+    }
+    if (bad) { showError('Complétez les champs en rouge.'); return; }
+    if (!configured) store.set('export-confluence-email', payload.email);
+
+    // La fenêtre « Enregistrer sous » doit s'ouvrir tout de suite après le clic (règle des navigateurs)
+    const base = ((!configured && payload.filename) || defaultName).replace(/\.xlsx$/i, '');
+    const suggested = base + ' - ' + stamp() + '.xlsx';
+    let saveHandle = null;
+    try { saveHandle = await askWhereToSave(suggested); }
+    catch (err) { showInfo('Export annulé.'); return; }
+
+    const steps = ['Connexion à Confluence…', 'Lecture des fiches…', 'Lecture des fiches…', "Création de l'Excel…"];
+    let i = 0;
+    setLoading(true, steps[0]); showInfo('Export en cours, cela prend quelques secondes…');
+    const timer = setInterval(() => { i = Math.min(i + 1, steps.length - 1); lbl.textContent = steps[i]; }, 2500);
+    const ctrl = new AbortController();
+    const killer = setTimeout(() => ctrl.abort(), 10 * 60 * 1000);
+
+    try {
+      const r = await fetch('api/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal,
+      });
+      const type = r.headers.get('Content-Type') || '';
+      if (!r.ok || type.indexOf('spreadsheetml') === -1) {
+        if (r.status === 403 && needsCode) { $('code-box').classList.add('invalid'); store.del('export-confluence-code'); }
+        if (r.status === 401 && !configured) { $('email-box').classList.add('invalid'); $('token-box').classList.add('invalid'); }
+        if ((r.status === 404 || r.status === 400) && !configured) { $('url-box').classList.add('invalid'); }
+        let msg = "L'export a échoué (erreur " + r.status + ').';
+        if (type.indexOf('json') !== -1) { try { msg = (await r.json()).error || msg; } catch (err) {} }
+        else if (r.status === 504) { msg = "L'export a pris trop de temps. Réessayez dans un instant."; }
+        if (r.status === 401 && configured) { msg = "Le compte Confluence configuré n'est plus accepté (token expiré ?). Prévenez l'administrateur du site."; }
+        throw new Error(msg);
+      }
+      if (needsCode) store.set('export-confluence-code', payload.code);
+      const blob = await r.blob();
+      let name = decodeURIComponent(r.headers.get('X-Export-Filename') || suggested);
+      const apps = r.headers.get('X-Export-Applications'), poles = r.headers.get('X-Export-Poles');
+      const note = r.headers.get('X-Export-Note');
+      const detail = apps !== null
+        ? plural(+apps, 'application', 'applications') + ' · ' + plural(+poles, 'pôle', 'pôles')
+        : plural(+(r.headers.get('X-Export-Pages') || 0), 'page', 'pages') + ' · ' + plural(+(r.headers.get('X-Export-Tables') || 0), 'tableau', 'tableaux');
+      if (lastUrl) URL.revokeObjectURL(lastUrl);
+      lastUrl = URL.createObjectURL(blob);
+      let saved = false;
+      if (saveHandle) {
+        try {
+          const w = await saveHandle.createWritable(); await w.write(blob); await w.close();
+          name = saveHandle.name || suggested; saved = true;
+        } catch (err) { saved = false; }
+      }
+      if (!saved) triggerDownload(lastUrl, name);
+      showDone(name, (saved ? 'Enregistré · ' : '') + detail + (note ? ' · ' + decodeURIComponent(note) : ''));
+    } catch (err) {
+      const offline = err.name === 'TypeError' || err.name === 'AbortError';
+      showError(offline ? "Le service d'export ne répond pas. Vérifiez votre connexion et réessayez." : err.message);
+    } finally {
+      clearInterval(timer); clearTimeout(killer); setLoading(false);
+    }
+  });
+})();
+</script>
+</body>
+</html>
